@@ -37,7 +37,7 @@ from micrograd.nn import MLP
 
 
 def hinge_loss(y, y_preds):
-    return []
+    return [(1 + -yi * y_pred).relu() for yi, y_pred in zip(y, y_preds)]
 
 
 # =============================================================================

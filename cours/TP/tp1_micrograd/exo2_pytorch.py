@@ -34,7 +34,7 @@ L_mg = (a_mg * b_mg + 1) ** 2
 L_mg.backward()
 
 # --- PYTORCH ---
-a_pt = torch.tensor([2.0])
+a_pt = torch.tensor([2.0], requires_grad=True)
 b_pt = torch.tensor([3.0], requires_grad=True)
 L_pt = (a_pt * b_pt + 1) ** 2
 L_pt.backward()
