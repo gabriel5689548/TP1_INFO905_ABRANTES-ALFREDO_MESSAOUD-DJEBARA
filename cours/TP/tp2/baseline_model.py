@@ -25,7 +25,7 @@ class GuildOracle(nn.Module):
     Architecture : MLP profond (trop profond !)
     """
 
-    def __init__(self, input_dim: int = 8, hidden_dim: int = 256, num_layers: int = 5):
+    def __init__(self, input_dim: int = 8, hidden_dim: int = 32, num_layers: int = 5):
         """
         Args:
             input_dim: Nombre de features (8 stats)
@@ -33,8 +33,17 @@ class GuildOracle(nn.Module):
             num_layers: Nombre de couches cachées
         """
         super().__init__()
-        # TODO
-        self.network = nn.Sequential()
+        self.network = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.BatchNorm1d(hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.BatchNorm1d(hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(hidden_dim, 1),
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
