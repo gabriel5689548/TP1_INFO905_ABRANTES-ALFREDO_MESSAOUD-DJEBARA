@@ -280,8 +280,12 @@ def main(args):
     print(f"Bidirectionnel: {args.bidirectional}")
     print(f"Paramètres: {count_parameters(model):,}")
 
-    # Loss et optimiseur
-    criterion = nn.BCEWithLogitsLoss()
+    # Loss et optimiseur — pondération des classes pour corriger le déséquilibre
+    num_pos = train_dataset.labels.sum().item()
+    num_neg = len(train_dataset.labels) - num_pos
+    pos_weight = torch.tensor([num_neg / num_pos]).to(device)
+    print(f"Classe positive: {int(num_pos)}, négative: {int(num_neg)}, pos_weight: {pos_weight.item():.2f}")
+    criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
     if args.optimizer == 'adam':
         optimizer = optim.Adam(
@@ -450,7 +454,7 @@ if __name__ == "__main__":
             choices=['linear', 'rnn', 'lstm'],
             help='Architecture du modèle (default: %(default)s)')
     parser.add_argument(
-            '--bidirectional', action='store_true', default=False,
+            '--bidirectional', action='store_true', default=True,
             help='RNN/LSTM bidirectionnel'
             )
 
