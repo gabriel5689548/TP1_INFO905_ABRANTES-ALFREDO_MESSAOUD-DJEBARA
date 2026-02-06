@@ -11,6 +11,7 @@ Contient:
 
 import torch
 import torch.nn as nn
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
 # ============================================================================
@@ -125,19 +126,23 @@ class DungeonOracle(nn.Module):
                 padding_idx=padding_idx
                 )
 
-        # Approche Baseline Linéaire (Alternative au RNN)
-        # On aplatit tout : (Batch, Seq_Len * Embed_Dim)
-        self.solo_embeddings = nn.Sequential(
-                nn.Flatten(),
-                nn.Linear(max_length * embed_dim, hidden_dim),
-                nn.ReLU(),
-                nn.Dropout(dropout),
-                nn.Linear(hidden_dim, hidden_dim),
-                nn.ReLU(),
-                nn.Dropout(dropout),
-                nn.Linear(hidden_dim, 1)  # Sortie directe pour comparaison
-                )
-        if self.mode != "linear":
+        # Dropout après embedding pour régularisation
+        self.embed_dropout = nn.Dropout(dropout)
+
+        if self.mode == "linear":
+            # Approche Baseline Linéaire (Alternative au RNN)
+            # On aplatit tout : (Batch, Seq_Len * Embed_Dim)
+            self.solo_embeddings = nn.Sequential(
+                    nn.Flatten(),
+                    nn.Linear(max_length * embed_dim, hidden_dim),
+                    nn.ReLU(),
+                    nn.Dropout(dropout),
+                    nn.Linear(hidden_dim, hidden_dim),
+                    nn.ReLU(),
+                    nn.Dropout(dropout),
+                    nn.Linear(hidden_dim, 1)  # Sortie directe pour comparaison
+                    )
+        else:
             # Couche récurrente
             # PROBLEME: Par défaut c'est un RNN simple qui souffre du vanishing gradient
             rnn_class = nn.LSTM if self.mode == "lstm" else nn.RNN
@@ -156,7 +161,10 @@ class DungeonOracle(nn.Module):
             classifier_input_dim = hidden_dim * 2 if bidirectional else hidden_dim
 
             self.classifier = nn.Sequential(
-                    nn.Linear(classifier_input_dim, 1)
+                    nn.Linear(classifier_input_dim, classifier_input_dim // 2),
+                    nn.ReLU(),
+                    nn.Dropout(dropout),
+                    nn.Linear(classifier_input_dim // 2, 1)
                     )
 
     def forward(self, x: torch.Tensor, lengths: torch.Tensor = None) -> torch.Tensor:
@@ -176,15 +184,26 @@ class DungeonOracle(nn.Module):
         # Étape 1: Embedding
         # (batch, seq_len) → (batch, seq_len, embed_dim)
         embedded = self.embedding(x)
+        embedded = self.embed_dropout(embedded)
 
         if self.mode != "linear":
             # Étape 2: Passage dans le RNN/LSTM
-            # output: (batch, seq_len, hidden_dim * num_directions)
-            # hidden: (num_layers * num_directions, batch, hidden_dim)
-            if self.mode == "lstm":
-                output, (hidden, cell) = self.rnn(embedded)
+            # Utiliser pack_padded_sequence pour ignorer le padding
+            if lengths is not None:
+                lengths_cpu = lengths.cpu().clamp(min=1)
+                packed = pack_padded_sequence(
+                        embedded, lengths_cpu, batch_first=True, enforce_sorted=False
+                        )
+                if self.mode == "lstm":
+                    packed_output, (hidden, cell) = self.rnn(packed)
+                else:
+                    packed_output, hidden = self.rnn(packed)
+                output, _ = pad_packed_sequence(packed_output, batch_first=True)
             else:
-                output, hidden = self.rnn(embedded)
+                if self.mode == "lstm":
+                    output, (hidden, cell) = self.rnn(embedded)
+                else:
+                    output, hidden = self.rnn(embedded)
 
             # Étape 3: Extraire le dernier état caché
             # Pour un RNN standard, on prend la dernière sortie

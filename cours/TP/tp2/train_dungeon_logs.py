@@ -301,7 +301,7 @@ def main(args):
     scheduler = None
     if args.use_scheduler:
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-                optimizer, mode='max', factor=0.5, patience=5, verbose=True
+                optimizer, mode='max', factor=0.5, patience=5
                 )
 
     print(f"Optimiseur: {args.optimizer.upper()}, LR: {args.learning_rate}")
@@ -428,25 +428,25 @@ if __name__ == "__main__":
             )
     # Modèle
     parser.add_argument(
-            '--embed_dim', type=int, default=258,
+            '--embed_dim', type=int, default=32,
             help='Dimension des embeddings'
             )
     parser.add_argument(
-            '--hidden_dim', type=int, default=258,
+            '--hidden_dim', type=int, default=64,
             help='Dimension de l\'état caché RNN/LSTM'
             )
     parser.add_argument(
-            '--num_layers', type=int, default=1,
+            '--num_layers', type=int, default=2,
             help='Nombre de couches RNN/LSTM'
             )
     parser.add_argument(
-            '--dropout', type=float, default=0.0,
+            '--dropout', type=float, default=0.3,
             help='Dropout entre les couches RNN'
             )
     parser.add_argument(
             '--mode',
             type=str,
-            default='linear',
+            default='lstm',
             choices=['linear', 'rnn', 'lstm'],
             help='Architecture du modèle (default: %(default)s)')
     parser.add_argument(
@@ -456,7 +456,7 @@ if __name__ == "__main__":
 
     # Entraînement
     parser.add_argument(
-            '--epochs', type=int, default=6,
+            '--epochs', type=int, default=50,
             help='Nombre d\'epochs'
             )
     parser.add_argument(
@@ -464,11 +464,11 @@ if __name__ == "__main__":
             help='Taille du batch'
             )
     parser.add_argument(
-            '--learning_rate', type=float, default=0.1,
+            '--learning_rate', type=float, default=0.001,
             help='Learning rate'
             )
     parser.add_argument(
-            '--optimizer', type=str, default='sgd',
+            '--optimizer', type=str, default='adam',
             choices=['adam', 'sgd'],
             help='Optimiseur'
             )
@@ -477,17 +477,17 @@ if __name__ == "__main__":
             help='Weight decay (L2 regularization)'
             )
     parser.add_argument(
-            '--use_scheduler', action='store_true', default=False,
+            '--use_scheduler', action='store_true', default=True,
             help='Utiliser un learning rate scheduler'
             )
 
     # Early stopping
     parser.add_argument(
-            '--early_stopping', action='store_true', default=False,
+            '--early_stopping', action='store_true', default=True,
             help='Activer early stopping'
             )
     parser.add_argument(
-            '--patience', type=int, default=10,
+            '--patience', type=int, default=7,
             help='Patience pour early stopping'
             )
 
