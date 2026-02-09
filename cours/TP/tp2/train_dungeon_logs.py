@@ -477,7 +477,7 @@ if __name__ == "__main__":
             help='Optimiseur'
             )
     parser.add_argument(
-            '--weight_decay', type=float, default=0.0,
+            '--weight_decay', type=float, default=1e-4,
             help='Weight decay (L2 regularization)'
             )
     parser.add_argument(
