@@ -3,7 +3,6 @@
 ## Distribution-Aligned Sequence Distillation — Application aux Echecs
 
 **Cours** : INFO905
-**Etudiants** : ABRANTES-ALFREDO / MESSAOUD-DJEBARA
 
 ---
 
@@ -106,6 +105,5 @@ Configuration LoRA : rank=16, alpha=32, target=all, dropout=0.05, fp16, gradient
 3. Pour la Phase 5 : uploader `stage1_raw.json` et `stage2_raw.json` quand demande
 4. L'entrainement complet prend environ 30-45 minutes sur T4
 
-## Reference
 
-*Base sur le papier "Distribution-Aligned Sequence Distillation for Superior Long-CoT Reasoning" (Alibaba, 2026)*
+ABRANTES-ALFREDO / MESSAOUD-DJEBARA
