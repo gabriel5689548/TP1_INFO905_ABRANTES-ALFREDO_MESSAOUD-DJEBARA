@@ -1,0 +1,43 @@
+### Stage 2 — Fine-tuning LoRA sur données haute température (échecs)
+### CHARGE l'adapter LoRA du Stage 1 avant de continuer
+### Plateforme cible : Google Colab T4 (16 GB VRAM)
+
+### Modèle
+model_name_or_path: unsloth/Qwen3-4B-Instruct-2507-unsloth-bnb-4bit
+adapter_name_or_path: saves/qwen3-4b-chess/lora/stage1
+trust_remote_code: true
+
+### Méthode
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_target: all
+lora_rank: 16
+lora_alpha: 32
+lora_dropout: 0.05
+
+### Dataset
+dataset: chess_stage2
+template: qwen3
+cutoff_len: 2048
+
+### Entraînement (lr plus bas pour stage 2, moins d'epochs)
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-4
+num_train_epochs: 2.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+gradient_checkpointing: true
+
+### Précision (T4 = fp16, pas bf16)
+fp16: true
+
+### Logging & sauvegarde
+logging_steps: 10
+save_steps: 100
+save_total_limit: 2
+
+### Sortie
+output_dir: saves/qwen3-4b-chess/lora/stage2
+overwrite_output_dir: true

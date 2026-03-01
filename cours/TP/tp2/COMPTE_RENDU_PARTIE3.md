@@ -1,8 +1,5 @@
 # Compte Rendu — Partie 3 : Oracle du Donjon
 
-**Cours** : INFO905 — Deep Learning
-**Auteurs** : Abrantes-Alfredo, Messaoud-Djebara
-
 ---
 
 ## 1. Objectif

@@ -1,0 +1,16 @@
+{
+  "chess_stage1": {
+    "file_name": "chess_stage1.json",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "conversations"
+    }
+  },
+  "chess_stage2": {
+    "file_name": "chess_stage2.json",
+    "formatting": "sharegpt",
+    "columns": {
+      "messages": "conversations"
+    }
+  }
+}
